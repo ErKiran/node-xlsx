@@ -1,4 +1,5 @@
 const { Order, sequelize } = require("../models");
+const { Op } = require('sequelize');
 
 async function create(data) {
     let transaction;

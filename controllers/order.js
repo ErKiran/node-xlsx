@@ -2,7 +2,7 @@ const fs = require('fs');
 const formidable = require('formidable');
 
 const { xlsxToJson, preprocessDataForDB, validateFile, validateExcelFile } = require('../utils/helper');
-const { create } = require('../repository/order');
+const { create, filter } = require('../repository/order');
 
 async function populateExcelDataToDB(req, res) {
     try {
@@ -73,15 +73,39 @@ async function populateExcelDataToDB(req, res) {
 
 async function filterData(req, res) {
     const { start, end } = req.query;
-    if (!start && !end) {
+    if (!start || !end) {
         return res.json({
             success: false,
             msg: 'Start and End date should be provided',
         });
     }
+    const startDate = Date.parse(start);
+    const endDate = Date.parse(end);
+
+    if (isNaN(startDate) || isNaN(endDate)) {
+        return res.json({
+            success: false,
+            msg: 'Start and End date should be date',
+        });
+    }
+
+    if (endDate < startDate) {
+        return res.json({
+            success: false,
+            msg: 'End Date should be greater than the start date',
+        });
+    }
+
+    const data = await filter(start, end);
+    return res.json({
+        success: true,
+        data,
+    });
+
 }
 
 
 module.exports = {
     populateExcelDataToDB,
+    filterData,
 }
