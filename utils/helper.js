@@ -1,7 +1,7 @@
 const XLSX = require("xlsx");
 
-function xlsxToJson() {
-    var wb = XLSX.readFile("Technical Assessment Sample File.1629087547.xlsx");
+function xlsxToJson(path) {
+    var wb = XLSX.readFile(path);
     data = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
     return data
 }

@@ -1,6 +1,6 @@
-const { Order } = require("../models");
+const { Order, sequelize } = require("../models");
 
-function create(data) {
+async function create(data) {
     let transaction;
     try {
         transaction = await sequelize.transaction()
