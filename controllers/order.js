@@ -1,7 +1,7 @@
 const fs = require('fs');
 const formidable = require('formidable');
 
-const { xlsxToJson, preprocessDataForDB, validateFile } = require('../utils/helper');
+const { xlsxToJson, preprocessDataForDB, validateFile, validateExcelFile } = require('../utils/helper');
 const { create } = require('../repository/order');
 
 async function populateExcelDataToDB(req, res) {
@@ -25,8 +25,18 @@ async function populateExcelDataToDB(req, res) {
                 if (fileData) {
                     filePath = fileData.path;
 
-                    const excelToJson = xlsxToJson(filePath);
+                    const [excelToJson, headers] = xlsxToJson(filePath);
+                    const validation = validateExcelFile(headers);
+                    if (!validation.success) {
+                        return res.json(validation);
+                    }
                     const data = preprocessDataForDB(excelToJson);
+                    if (data.length === 0) {
+                        return res.json({
+                            success: false,
+                            msg: 'No data found in the excel file',
+                        })
+                    }
                     await create(data);
                     return res.json({
                         success: true,
@@ -63,7 +73,7 @@ async function populateExcelDataToDB(req, res) {
 
 async function filterData(req, res) {
     const { start, end } = req.query;
-    if(!start && !end) {
+    if (!start && !end) {
         return res.json({
             success: false,
             msg: 'Start and End date should be provided',
