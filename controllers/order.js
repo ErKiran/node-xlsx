@@ -1,5 +1,6 @@
 const fs = require('fs');
 const formidable = require('formidable');
+const XLSX = require('xlsx');
 
 const { xlsxToJson, preprocessDataForDB, validateFile, validateExcelFile, jsonToXLSX } = require('../utils/helper');
 const { create, filter } = require('../repository/order');
@@ -128,13 +129,15 @@ async function filterData(req, res) {
         orderData["Total Number of Products"] = products.size;
         result.push(orderData)
     })
-    jsonToXLSX(result)
+    const workbook = jsonToXLSX(result)
 
-    return res.json({
-        success: true,
-        result,
-    });
+    const fileName = "Summary.xlsx";
+    res.setHeader('Content-disposition', 'attachment; filename=' + fileName);
+    res.setHeader('Content-type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    var wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' });
+    res.send(Buffer.from(wbout));
 
+    response.end();
 }
 
 

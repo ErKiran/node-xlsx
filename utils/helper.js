@@ -12,7 +12,7 @@ function jsonToXLSX(data) {
     const ws = XLSX.utils.json_to_sheet(data);
 
     XLSX.utils.book_append_sheet(wb, ws, "Order Summary");
-    return XLSX.writeFile(wb, 'summary.xlsx');
+    return wb
 }
 
 function validateExcelFile(requestHeaders) {
