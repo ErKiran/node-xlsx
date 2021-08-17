@@ -7,6 +7,14 @@ function xlsxToJson(path) {
     return [data, columnsArray];
 }
 
+function jsonToXLSX(data) {
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(data);
+
+    XLSX.utils.book_append_sheet(wb, ws, "Order Summary");
+    return XLSX.writeFile(wb, 'summary.xlsx');
+}
+
 function validateExcelFile(requestHeaders) {
     const expectedHeaders = [
         'Date',
@@ -68,4 +76,5 @@ module.exports = {
     preprocessDataForDB,
     validateFile,
     validateExcelFile,
+    jsonToXLSX,
 }

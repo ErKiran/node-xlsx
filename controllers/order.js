@@ -1,7 +1,7 @@
 const fs = require('fs');
 const formidable = require('formidable');
 
-const { xlsxToJson, preprocessDataForDB, validateFile, validateExcelFile } = require('../utils/helper');
+const { xlsxToJson, preprocessDataForDB, validateFile, validateExcelFile, jsonToXLSX } = require('../utils/helper');
 const { create, filter } = require('../repository/order');
 
 async function populateExcelDataToDB(req, res) {
@@ -97,9 +97,42 @@ async function filterData(req, res) {
     }
 
     const data = await filter(start, end);
+
+    const groupedBy = data.reduce(
+        (group, order) => {
+            if (!group[order.order_number]) {
+                group[order.order_number] = []
+            }
+            group[order.order_number].push(order)
+            return group
+        },
+        {},
+    )
+
+    const result = [];
+    Object.keys(groupedBy).forEach(key => {
+        const orderData = {}
+        let totalAmount = 0;
+        let totalQuantity = 0;
+        const products = new Set()
+        groupedBy[key].forEach(order => {
+            totalAmount += order.rate * order.quantity;
+            totalQuantity += order.quantity;
+            products.add(order.product)
+            orderData["Date"] = order.date;
+            orderData["Order Number"] = order.order_number;
+            orderData["Location"] = order.location;
+        })
+        orderData["Total Amount"] = totalAmount;
+        orderData["Total Quantity"] = totalQuantity;
+        orderData["Total Number of Products"] = products.size;
+        result.push(orderData)
+    })
+    jsonToXLSX(result)
+
     return res.json({
         success: true,
-        data,
+        result,
     });
 
 }
