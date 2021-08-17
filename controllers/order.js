@@ -1,7 +1,7 @@
 const fs = require('fs');
 const formidable = require('formidable');
 
-const { xlsxToJson, preprocessDataForDB } = require('../utils/helper');
+const { xlsxToJson, preprocessDataForDB, validateFile } = require('../utils/helper');
 const { create } = require('../repository/order');
 
 async function populateExcelDataToDB(req, res) {
@@ -61,22 +61,16 @@ async function populateExcelDataToDB(req, res) {
     }
 }
 
-function validateFile(file) {
-    try {
-        const fileExtension = file.name.split('.').pop();
-        if (fileExtension !== 'xlsx') {
-            return {
-                success: false,
-                msg: 'Only .xlsx file is allowed',
-            }
-        }
-        return {
-            success: true,
-        }
-    } catch (err) {
-        throw new Error(`Can't validate File Extension ${err}`);
+async function filterData(req, res) {
+    const { start, end } = req.query;
+    if(!start && !end) {
+        return res.json({
+            success: false,
+            msg: 'Start and End date should be provided',
+        });
     }
 }
+
 
 module.exports = {
     populateExcelDataToDB,

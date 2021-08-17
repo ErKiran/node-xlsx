@@ -22,7 +22,25 @@ function preprocessDataForDB(data) {
     return dbObject
 }
 
+function validateFile(file) {
+    try {
+        const fileExtension = file.name.split('.').pop();
+        if (fileExtension !== 'xlsx') {
+            return {
+                success: false,
+                msg: 'Only .xlsx file is allowed',
+            }
+        }
+        return {
+            success: true,
+        }
+    } catch (err) {
+        throw new Error(`Can't validate File Extension ${err}`);
+    }
+}
+
 module.exports = {
     xlsxToJson,
     preprocessDataForDB,
+    validateFile,
 }
