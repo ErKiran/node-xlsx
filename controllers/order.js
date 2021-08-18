@@ -134,10 +134,10 @@ async function filterData(req, res) {
     const fileName = "Summary.xlsx";
     res.setHeader('Content-disposition', 'attachment; filename=' + fileName);
     res.setHeader('Content-type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    var wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' });
+    const wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' });
     res.send(Buffer.from(wbout));
 
-    response.end();
+    res.end();
 }
 
 

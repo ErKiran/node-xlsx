@@ -26,6 +26,12 @@ function validateExcelFile(requestHeaders) {
         'Gross Amount',
         'Location'
     ]
+    if(!requestHeaders){
+        return {
+            success: false,
+            msg: `File doesn't have any headers. Please check the file`,
+        }
+    }
     const missingHeaders = expectedHeaders.filter(header => requestHeaders.indexOf(header) === -1);
     if (missingHeaders.length > 0) {
         return {
@@ -48,7 +54,7 @@ function preprocessDataForDB(data) {
             quantity: e['Quantity'],
             brand: e['Brand'],
             location: e['Location'],
-            date: e['Date'],
+            date: new Date(e['Date']),
         })
     })
     return dbObject
